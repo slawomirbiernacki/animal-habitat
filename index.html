@@ -9,44 +9,154 @@
     <meta name="description" content="test">
     <meta name="author" content="slawomir.biernacki">
 
+    <!-- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous"> -->
+
     <link rel="stylesheet" href="css/styles.css?v=1.0">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css"
         integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
         crossorigin="" />
 
-    <script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js"
-        integrity="sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og=="
-        crossorigin=""></script>
+
+
+    <!-- <link rel="stylesheet" href="https://libs.cartocdn.com/cartodb.js/v3/themes/css/cartodb.css" /> -->
 </head>
 
 <body>
 
     <style>
-        body {
-            padding: 0;
-            margin: 0;
+        #mapid {
+            height: 500px;
         }
 
-        html,
-        body,
-        #mapid {
-            height: 100%;
+        svg {
+            position: relative;
+        }
+
+        path {
+            fill: #000;
+            fill-opacity: .2;
+            stroke: #fff;
+            stroke-width: 1.5px;
+        }
+
+        path:hover {
+            fill: brown;
+            fill-opacity: .7;
         }
     </style>
-    lolz
-    <div id="mapid"></div>
+
+    <div class="container">
+        <button type="button" class="btn btn-primary" onclick="myFunction1()">Monkey1</button>
+        <button type="button" class="btn btn-primary" onclick="myFunction2()">Monkey2</button>
+    </div>
+
+    <div id="mapid" class="container-fluid"></div>
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js"
+        integrity="sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og=="
+        crossorigin=""></script>
+
 
     <script>
-        var mymap = L.map('mapid').setView([51.505, -0.09], 13);
+        function main() {
+            // var map = L.map('mapid').setView([-13.294, -39.624], 4);
 
-        // L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
-        L.tileLayer('https://api.mapbox.com/styles/v1/xianoss/ck13rc6tx0ceq1cpufzyo2whl/tiles/256/{z}/{x}/{y}@2x?access_token={accessToken}', {
-            attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-            maxZoom: 18,
-            id: 'mapbox.streets',
-            accessToken: 'pk.eyJ1IjoieGlhbm9zcyIsImEiOiJjazEzcXBybDAwYWdoM21tOWJycmI2MDhkIn0.GC6a12y8atojUzy_EeZStQ'
-        }).addTo(mymap);
+            // L.tileLayer('https://api.mapbox.com/styles/v1/xianoss/ck140j93d0lz81clmu79emrku/tiles/256/{z}/{x}/{y}@2x?access_token={accessToken}', {
+            //     attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+            //     maxZoom: 18,
+            //     id: 'mapbox.streets',
+            //     accessToken: 'pk.eyJ1IjoieGlhbm9zcyIsImEiOiJjazEzcXBybDAwYWdoM21tOWJycmI2MDhkIn0.GC6a12y8atojUzy_EeZStQ'
+            // }).addTo(map);
+
+            var map = new L.Map("mapid", { center: [37.8, -96.9], zoom: 4 })
+                .addLayer(new L.TileLayer("http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"));
+
+
+            // cartodb.createLayer(mymap, 'http://documentation.carto.com/api/v2/viz/2b13c956-e7c1-11e2-806b-5404a6a683d5/viz.json')
+            //     .addTo(mymap)
+            //     .on('done', function (layer) {
+            //         //do stuff
+            //     })
+            //     .on('error', function (err) {
+            //         alert("some error occurred: " + err);
+            //     });
+
+            var svg = d3.select(map.getPanes().overlayPane).append("svg"),
+                g = svg.append("g").attr("class", "leaflet-zoom-hide");
+
+
+            d3.json("us-states.json", function (error, collection) {
+                if (error) throw error;
+
+                var transform = d3.geo.transform({ point: projectPoint }),
+                    path = d3.geo.path().projection(transform);
+
+                var feature = g.selectAll("path")
+                    .data(collection.features)
+                    .enter().append("path");
+
+                map.on("viewreset", reset);
+                reset();
+
+                // Reposition the SVG to cover the features.
+                function reset() {
+                    var bounds = path.bounds(collection),
+                        topLeft = bounds[0],
+                        bottomRight = bounds[1];
+
+                    svg.attr("width", bottomRight[0] - topLeft[0])
+                        .attr("height", bottomRight[1] - topLeft[1])
+                        .style("left", topLeft[0] + "px")
+                        .style("top", topLeft[1] + "px");
+
+                    g.attr("transform", "translate(" + -topLeft[0] + "," + -topLeft[1] + ")");
+
+                    feature.attr("d", path);
+                }
+
+                // Use Leaflet to implement a D3 geometric transformation.
+                function projectPoint(x, y) {
+                    var point = map.latLngToLayerPoint(new L.LatLng(y, x));
+                    this.stream.point(point.x, point.y);
+                }
+            });
+
+            let monkey1on = true;
+            function myFunction1() {
+                if (monkey1on) {
+                    monkey1on = false
+                    console.log("off")
+                } else {
+                    monkey1on = true
+                    console.log("on")
+                }
+            }
+
+
+            let monkey2on = true;
+            function myFunction2() {
+                if (monkey2on) {
+                    monkey2on = false
+                } else {
+                    monkey2on = true
+                }
+            }
+        }
+        window.onload = main;
     </script>
+
+
+
+    <!-- <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+        crossorigin="anonymous"></script> -->
 </body>
 
 </html>
