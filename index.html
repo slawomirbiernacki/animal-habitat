@@ -52,14 +52,12 @@
     </div>
 
     <div id="mapid"></div>
-    <!-- <script src="https://d3js.org/d3.v5.min.js"></script> -->
     <script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js"
         integrity="sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og=="
         crossorigin=""></script>
 
     <script src="//d3js.org/d3.v5.min.js" charset="utf-8"></script>
     <script src="https://d3js.org/d3-geo.v1.min.js"></script>
-    <script src="https://d3js.org/queue.v1.min.js"></script>
     <script>
         async function main() {
             var map = L.map('mapid').setView([-13.294, -60.624], 4);
@@ -133,8 +131,6 @@
                     feature.attr("d", geoGenerator);
                 }
 
-
-
                 // Use Leaflet to implement a D3 geometric transformation.
                 function projectPoint(x, y) {
                     var point = map.latLngToLayerPoint(new L.LatLng(y, x));
@@ -145,8 +141,6 @@
         }
         window.onload = main;
     </script>
-
-
 
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
         integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
