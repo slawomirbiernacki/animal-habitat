@@ -57,7 +57,8 @@
         integrity="sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og=="
         crossorigin=""></script>
 
-    <script src="//d3js.org/d3.v3.min.js" charset="utf-8"></script>
+    <script src="//d3js.org/d3.v4.min.js" charset="utf-8"></script>
+    <script src="https://d3js.org/d3-geo.v1.min.js"></script>
     <script src="https://d3js.org/queue.v1.min.js"></script>
     <script>
         function main() {
@@ -87,8 +88,8 @@
 
                 collection = collection1
 
-                var transform = d3.geo.transform({ point: projectPoint })
-                var geoGenerator = d3.geo.path().projection(transform);
+                var transform = d3.geoTransform({ point: projectPoint })
+                var geoGenerator = d3.geoPath().projection(transform);
 
                 var feature = g.selectAll("path")
                     .data(collection.features)
