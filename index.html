@@ -57,11 +57,11 @@
         integrity="sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og=="
         crossorigin=""></script>
 
-    <script src="//d3js.org/d3.v4.min.js" charset="utf-8"></script>
+    <script src="//d3js.org/d3.v5.min.js" charset="utf-8"></script>
     <script src="https://d3js.org/d3-geo.v1.min.js"></script>
     <script src="https://d3js.org/queue.v1.min.js"></script>
     <script>
-        function main() {
+        async function main() {
             var map = L.map('mapid').setView([-13.294, -60.624], 4);
 
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -73,17 +73,10 @@
             var svg = d3.select(map.getPanes().overlayPane).append("svg");
             var g = svg.append("g").attr("class", "leaflet-zoom-hide");
 
-            queue()
-                .defer(d3.json, "monkey1.json")
-                .defer(d3.json, "monkey2.json")
-                .await(function (error, file1, file2) {
-                    if (error) {
-                        console.error('Oh dear, something went wrong: ' + error);
-                    }
-                    else {
-                        doStuff(file1, file2);
-                    }
-                });
+            const data1 = await d3.json("monkey1.json");
+            const data2 = await d3.json("monkey2.json");
+            doStuff(data1, data2);
+
             function doStuff(collection1, collection2) {
 
                 collection = collection1
