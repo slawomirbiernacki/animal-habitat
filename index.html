@@ -9,24 +9,20 @@
     <meta name="description" content="test">
     <meta name="author" content="slawomir.biernacki">
 
-    <!-- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
-        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous"> -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 
     <link rel="stylesheet" href="css/styles.css?v=1.0">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css"
         integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
         crossorigin="" />
-
-
-
-    <!-- <link rel="stylesheet" href="https://libs.cartocdn.com/cartodb.js/v3/themes/css/cartodb.css" /> -->
 </head>
 
 <body>
 
     <style>
         #mapid {
-            height: 500px;
+            height: 700px;
         }
 
         svg {
@@ -34,63 +30,51 @@
         }
 
         path {
-            fill: #000;
-            fill-opacity: .2;
-            stroke: #fff;
-            stroke-width: 1.5px;
+            fill: rgb(16, 236, 64);
+            fill-opacity: .7;
+            stroke: rgb(90, 89, 89);
+            stroke-width: 3.5px;
         }
 
-        path:hover {
+        /* path:hover {
             fill: brown;
             fill-opacity: .7;
-        }
+        } */
     </style>
 
     <div class="container">
-        <button type="button" class="btn btn-primary" onclick="myFunction1()">Monkey1</button>
-        <button type="button" class="btn btn-primary" onclick="myFunction2()">Monkey2</button>
+        <button type="button" class="btn btn-primary" onclick="myFunction1()">Monkey happy</button>
+        <button type="button" class="btn btn-primary" onclick="myFunction2()">Monkey sad</button>
     </div>
 
-    <div id="mapid" class="container-fluid"></div>
-    <script src="https://d3js.org/d3.v5.min.js"></script>
-    <script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js"
+    <div id="mapid"></div>
+    <!-- <script src="https://d3js.org/d3.v5.min.js"></script> -->
+    <!-- <script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js"
         integrity="sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og=="
-        crossorigin=""></script>
+        crossorigin=""></script> -->
 
-
+    <script src="//d3js.org/d3.v3.min.js" charset="utf-8"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.5/leaflet.js"></script>
     <script>
         function main() {
-            // var map = L.map('mapid').setView([-13.294, -39.624], 4);
+            var map = L.map('mapid').setView([-13.294, -60.624], 4);
 
-            // L.tileLayer('https://api.mapbox.com/styles/v1/xianoss/ck140j93d0lz81clmu79emrku/tiles/256/{z}/{x}/{y}@2x?access_token={accessToken}', {
-            //     attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-            //     maxZoom: 18,
-            //     id: 'mapbox.streets',
-            //     accessToken: 'pk.eyJ1IjoieGlhbm9zcyIsImEiOiJjazEzcXBybDAwYWdoM21tOWJycmI2MDhkIn0.GC6a12y8atojUzy_EeZStQ'
-            // }).addTo(map);
-
-            var map = new L.Map("mapid", { center: [37.8, -96.9], zoom: 4 })
-                .addLayer(new L.TileLayer("http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"));
-
-
-            // cartodb.createLayer(mymap, 'http://documentation.carto.com/api/v2/viz/2b13c956-e7c1-11e2-806b-5404a6a683d5/viz.json')
-            //     .addTo(mymap)
-            //     .on('done', function (layer) {
-            //         //do stuff
-            //     })
-            //     .on('error', function (err) {
-            //         alert("some error occurred: " + err);
-            //     });
+            L.tileLayer('https://api.mapbox.com/styles/v1/xianoss/ck140j93d0lz81clmu79emrku/tiles/256/{z}/{x}/{y}@2x?access_token={accessToken}', {
+                attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+                maxZoom: 18,
+                id: 'mapbox.streets',
+                accessToken: 'pk.eyJ1IjoieGlhbm9zcyIsImEiOiJjazEzcXBybDAwYWdoM21tOWJycmI2MDhkIn0.GC6a12y8atojUzy_EeZStQ'
+            }).addTo(map);
 
             var svg = d3.select(map.getPanes().overlayPane).append("svg"),
                 g = svg.append("g").attr("class", "leaflet-zoom-hide");
 
 
-            d3.json("us-states.json", function (error, collection) {
+            d3.json("monkey2.json", function (error, collection) {
                 if (error) throw error;
 
-                var transform = d3.geo.transform({ point: projectPoint }),
-                    path = d3.geo.path().projection(transform);
+                var transform = d3.geo.transform({ point: projectPoint })
+                var path = d3.geo.path().projection(transform);
 
                 var feature = g.selectAll("path")
                     .data(collection.features)
@@ -148,7 +132,7 @@
 
 
 
-    <!-- <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
         integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
         crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
@@ -156,7 +140,7 @@
         crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
         integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
-        crossorigin="anonymous"></script> -->
+        crossorigin="anonymous"></script>
 </body>
 
 </html>
