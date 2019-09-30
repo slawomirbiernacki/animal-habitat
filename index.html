@@ -71,7 +71,7 @@
             var svg = d3.select(map.getPanes().overlayPane).append("svg");
             var g = svg.append("g").attr("class", "leaflet-zoom-hide");
 
-            const data1 = await d3.json("monkey1.json");
+            const data1 = await d3.json("monkey3.json");
             const data2 = await d3.json("monkey2.json");
             doStuff(data1, data2);
 
@@ -85,7 +85,8 @@
                 var feature = g.selectAll("path")
                     .data(collection.features)
                     .enter().append("path")
-                    .attr("class", "green");
+                    .attr("fill", "green");
+
 
                 map.on("viewreset", reset);
                 reset();
@@ -99,19 +100,22 @@
                 });
 
                 function update(data, color) {
-                    var t = d3.transition()
-                        .duration(750);
 
                     var sel = g.selectAll("path")
                         .data(data.features)
-                        .attr("class", color)
+
 
                     sel.enter()
                         .append("path")
 
+                    collection = data
+
                     sel
                         .transition().duration(1000)
+                        .ease(d3.easeLinear)
+                        .style("fill", color)
                         .attr("d", geoGenerator)
+
                 };
 
                 // Reposition the SVG to cover the features.
