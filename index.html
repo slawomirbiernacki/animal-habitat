@@ -29,7 +29,7 @@
         path {
             fill-opacity: .7;
             stroke: rgb(90, 89, 89);
-            stroke-width: 3.5px;
+            stroke-width: 1.5px;
         }
 
         .red {
@@ -58,14 +58,18 @@
 
     <script src="//d3js.org/d3.v5.min.js" charset="utf-8"></script>
     <script src="https://d3js.org/d3-geo.v1.min.js"></script>
+    <script src="https://unpkg.com/flubber@0.3.0"></script>
     <script>
         async function main() {
             var map = L.map('mapid').setView([-13.294, -60.624], 4);
 
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            // L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+
+            L.tileLayer('https://api.mapbox.com/styles/v1/xianoss/ck13rc6tx0ceq1cpufzyo2whl/tiles/256/{z}/{x}/{y}@2x?access_token={access_token}', {
                 attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
                 maxZoom: 18,
                 id: 'mapbox.streets',
+                access_token: 'pk.eyJ1IjoieGlhbm9zcyIsImEiOiJjazEzcXBybDAwYWdoM21tOWJycmI2MDhkIn0.GC6a12y8atojUzy_EeZStQ'
             }).addTo(map);
 
             var svg = d3.select(map.getPanes().overlayPane).append("svg");
@@ -77,18 +81,18 @@
 
             function doStuff(collection1, collection2) {
 
-                collection = collection1
+                // collection = collection1
 
                 var transform = d3.geoTransform({ point: projectPoint })
                 var geoGenerator = d3.geoPath().projection(transform);
 
                 var feature = g.selectAll("path")
-                    .data(collection.features)
+                    .data(collection1.features)
                     .enter().append("path")
                     .attr("fill", "green");
 
 
-                map.on("viewreset", reset);
+                map.on("zoom", reset);
                 reset();
 
                 $("#btn1").click(function () {
@@ -108,10 +112,10 @@
                     sel.enter()
                         .append("path")
 
-                    collection = data
+                    // collection = data
 
                     sel
-                        .transition().duration(1000)
+                        .transition().duration(500)
                         .ease(d3.easeLinear)
                         .style("fill", color)
                         .attr("d", geoGenerator)
@@ -121,9 +125,17 @@
                 // Reposition the SVG to cover the features.
                 function reset() {
 
-                    var bounds = geoGenerator.bounds(collection),
-                        topLeft = bounds[0],
-                        bottomRight = bounds[1];
+                    var bounds1 = geoGenerator.bounds(collection1),
+                        topLeft1 = bounds1[0],
+                        bottomRight1 = bounds1[1];
+
+                    var bounds2 = geoGenerator.bounds(collection2),
+                        topLeft2 = bounds2[0],
+                        bottomRight2 = bounds2[1];
+
+                    var strokeThickness = 3
+                    var bottomRight = [Math.max(bottomRight1[0], bottomRight2[0]) + strokeThickness, Math.max(bottomRight1[1], bottomRight2[1]) + strokeThickness]
+                    var topLeft = [Math.min(topLeft1[0], topLeft2[0]) - strokeThickness, Math.min(topLeft1[1], topLeft2[1]) - strokeThickness]
 
                     svg.attr("width", bottomRight[0] - topLeft[0])
                         .attr("height", bottomRight[1] - topLeft[1])
