@@ -72,16 +72,16 @@
                 access_token: 'pk.eyJ1IjoieGlhbm9zcyIsImEiOiJjazEzcXBybDAwYWdoM21tOWJycmI2MDhkIn0.GC6a12y8atojUzy_EeZStQ'
             }).addTo(map);
 
-            var svg = d3.select(map.getPanes().overlayPane).append("svg");
-            var g = svg.append("g").attr("class", "leaflet-zoom-hide");
+            var svgLayer = L.svg();
+            svgLayer.addTo(map);
+            var svg = d3.select("#mapid").select("svg");
+            var g = svg.select('g');
 
-            const data1 = await d3.json("monkey3.json");
+            const data1 = await d3.json("monkey1.json");
             const data2 = await d3.json("monkey2.json");
             doStuff(data1, data2);
 
             function doStuff(collection1, collection2) {
-
-                // collection = collection1
 
                 var transform = d3.geoTransform({ point: projectPoint })
                 var geoGenerator = d3.geoPath().projection(transform);
@@ -91,10 +91,6 @@
                     .enter().append("path")
                     .attr("fill", "green");
 
-
-                map.on("zoom", reset);
-                reset();
-
                 $("#btn1").click(function () {
                     update(collection1, "green")
                 });
@@ -102,6 +98,13 @@
                 $("#btn2").click(function () {
                     update(collection2, "red")
                 });
+
+                map.on("moveend", drawAndUpdateCircles);
+                drawAndUpdateCircles()
+
+                function drawAndUpdateCircles() {
+                    feature.attr("d", geoGenerator)
+                }
 
                 function update(data, color) {
 
@@ -113,39 +116,18 @@
                         .append("path")
 
                     // collection = data
+                    // var interpolator = flubber.interpolate(collection1.features[0].geometry.coordinates[0], collection2.features[0].geometry.coordinates[0]);
+                    // sel.attr("d", interpolator(0));
+                    // sel.attr("d", geoGenerator);
 
                     sel
-                        .transition().duration(500)
+                        .transition().duration(300)
                         .ease(d3.easeLinear)
                         .style("fill", color)
+                        // .attrTween("d", function(){ return interpolator; })
                         .attr("d", geoGenerator)
 
                 };
-
-                // Reposition the SVG to cover the features.
-                function reset() {
-
-                    var bounds1 = geoGenerator.bounds(collection1),
-                        topLeft1 = bounds1[0],
-                        bottomRight1 = bounds1[1];
-
-                    var bounds2 = geoGenerator.bounds(collection2),
-                        topLeft2 = bounds2[0],
-                        bottomRight2 = bounds2[1];
-
-                    var strokeThickness = 3
-                    var bottomRight = [Math.max(bottomRight1[0], bottomRight2[0]) + strokeThickness, Math.max(bottomRight1[1], bottomRight2[1]) + strokeThickness]
-                    var topLeft = [Math.min(topLeft1[0], topLeft2[0]) - strokeThickness, Math.min(topLeft1[1], topLeft2[1]) - strokeThickness]
-
-                    svg.attr("width", bottomRight[0] - topLeft[0])
-                        .attr("height", bottomRight[1] - topLeft[1])
-                        .style("left", topLeft[0] + "px")
-                        .style("top", topLeft[1] + "px");
-
-                    g.attr("transform", "translate(" + -topLeft[0] + "," + -topLeft[1] + ")");
-
-                    feature.attr("d", geoGenerator);
-                }
 
                 // Use Leaflet to implement a D3 geometric transformation.
                 function projectPoint(x, y) {
