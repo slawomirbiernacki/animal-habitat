@@ -79,9 +79,9 @@
 
             const data1 = await d3.json("monkey1.json");
             const data2 = await d3.json("monkey2.json");
-            doStuff(data1, data2);
+            draw(data1, data2);
 
-            function doStuff(collection1, collection2) {
+            function draw(collection1, collection2) {
 
                 var transform = d3.geoTransform({ point: projectPoint })
                 var geoGenerator = d3.geoPath().projection(transform);
@@ -99,40 +99,49 @@
                     update(collection2, "red")
                 });
 
-                map.on("moveend", drawAndUpdateCircles);
-                drawAndUpdateCircles()
+                map.on("moveend", drawAndUpdate);
+                drawAndUpdate()
 
-                function drawAndUpdateCircles() {
+                function drawAndUpdate() {
                     feature.attr("d", geoGenerator)
                 }
+
+                currentCoordinates = projectGeoJsonToPixelCoordinates(collection1)
 
                 function update(data, color) {
 
                     var sel = g.selectAll("path")
                         .data(data.features)
 
-
                     sel.enter()
                         .append("path")
 
-                    // collection = data
-                    // var interpolator = flubber.interpolate(collection1.features[0].geometry.coordinates[0], collection2.features[0].geometry.coordinates[0]);
-                    // sel.attr("d", interpolator(0));
-                    // sel.attr("d", geoGenerator);
+                    newCoordinates = projectGeoJsonToPixelCoordinates(data)
+
+                    var interpolator = flubber.interpolate(currentCoordinates, newCoordinates);
+                    currentCoordinates = newCoordinates
 
                     sel
                         .transition().duration(300)
                         .ease(d3.easeLinear)
                         .style("fill", color)
-                        // .attrTween("d", function(){ return interpolator; })
-                        .attr("d", geoGenerator)
-
+                        .attrTween("d", function () { return interpolator; })
                 };
 
                 // Use Leaflet to implement a D3 geometric transformation.
                 function projectPoint(x, y) {
                     var point = map.latLngToLayerPoint(new L.LatLng(y, x));
                     this.stream.point(point.x, point.y);
+                }
+
+                function projectGeoJsonToPixelCoordinates(geoJson) {
+                    geoCoordinates = geoJson.features[0].geometry.coordinates[0]
+                    var convertedCoordinates = []
+                    geoCoordinates.forEach(function (entry) {
+                        converted = map.latLngToLayerPoint(new L.LatLng(entry[1], entry[0]));
+                        convertedCoordinates.push([converted.x, converted.y])
+                    })
+                    return convertedCoordinates
                 }
             }
 
