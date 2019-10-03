@@ -63,14 +63,22 @@
         async function main() {
             var map = L.map('mapid').setView([-13.294, -60.624], 4);
 
-            // L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/watercolor/{z}/{x}/{y}.jpg', {
 
-            L.tileLayer('https://api.mapbox.com/styles/v1/xianoss/ck13rc6tx0ceq1cpufzyo2whl/tiles/256/{z}/{x}/{y}@2x?access_token={access_token}', {
+                // L.tileLayer('https://api.mapbox.com/styles/v1/xianoss/ck13rc6tx0ceq1cpufzyo2whl/tiles/256/{z}/{x}/{y}@2x?access_token={access_token}', {
                 attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
                 maxZoom: 18,
                 id: 'mapbox.streets',
                 access_token: 'pk.eyJ1IjoieGlhbm9zcyIsImEiOiJjazEzcXBybDAwYWdoM21tOWJycmI2MDhkIn0.GC6a12y8atojUzy_EeZStQ'
             }).addTo(map);
+
+            L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/terrain-labels/{z}/{x}/{y}{r}.{ext}', {
+                attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+                subdomains: 'abcd',
+                minZoom: 0,
+                maxZoom: 18,
+                ext: 'png'
+            }).addTo(map)
 
             var svgLayer = L.svg();
             svgLayer.addTo(map);
@@ -116,7 +124,7 @@
                     sel.enter()
                         .append("path")
 
-                    newCoordinates = projectGeoJsonToPixelCoordinates(data)
+                    newCoordinates = projectGeoJsonToPixelCoordinates(data) //TODO fix on zoom
 
                     var interpolator = flubber.interpolate(currentCoordinates, newCoordinates);
                     currentCoordinates = newCoordinates
