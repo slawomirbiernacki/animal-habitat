@@ -100,11 +100,11 @@
                     .attr("fill", "green");
 
                 $("#btn1").click(function () {
-                    update(collection1, "green")
+                    changeFigure(collection1, 0)
                 });
 
                 $("#btn2").click(function () {
-                    update(collection2, "red")
+                    changeFigure(collection2, 1)
                 });
 
                 map.on("moveend", drawAndUpdate);
@@ -114,20 +114,26 @@
                     feature.attr("d", geoGenerator)
                 }
 
-                currentCoordinates = projectGeoJsonToPixelCoordinates(collection1)
+                function changeFigure(data, option) {
 
-                function update(data, color) {
+                    let color;
+                    var interpolator;
+                    coordinates1 = projectGeoJsonToPixelCoordinates(collection1)
+                    coordinates2 = projectGeoJsonToPixelCoordinates(collection2)
+
+                    if (option === 0) {
+                        color = "green"
+                        interpolator = flubber.interpolate(coordinates2, coordinates1);
+                    } else {
+                        color = "red"
+                        interpolator = flubber.interpolate(coordinates1, coordinates2);
+                    }
 
                     var sel = g.selectAll("path")
                         .data(data.features)
 
                     sel.enter()
                         .append("path")
-
-                    newCoordinates = projectGeoJsonToPixelCoordinates(data) //TODO fix on zoom
-
-                    var interpolator = flubber.interpolate(currentCoordinates, newCoordinates);
-                    currentCoordinates = newCoordinates
 
                     sel
                         .transition().duration(300)
