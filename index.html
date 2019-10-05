@@ -65,7 +65,7 @@
             id="btn2">Sad
             monkeys</button>
 
-            <div class="mdl-cell mdl-cell--2-col"></div>
+        <div class="mdl-cell mdl-cell--2-col"></div>
         <div class="mdl-cell mdl-cell--2-col">
             <input type=" text" class="js-range-slider" name="my_range" value="" />
         </div>
@@ -121,7 +121,7 @@
             var svg = d3.select("#mapid").select("svg");
             var g = svg.select('g');
 
-            const data1 = await d3.json("monkey1.json");
+            const data1 = await d3.json("jaguar_2016.geojson");
             const data2 = await d3.json("monkey2.json");
             draw(data1, data2);
 
@@ -129,7 +129,7 @@
 
                 $(".js-range-slider").ionRangeSlider({
                     grid: true,
-                    grid_num: 2, 
+                    grid_num: 2,
                     from: 0,
                     postfix: " year",
                     values: [
@@ -137,7 +137,7 @@
                     ],
                     prettify_enabled: true,
                     prettify_separator: "",
-                    hide_from_to: true, 
+                    hide_from_to: true,
                     onChange: function (data) {
                         console.log(data.from);
                         if (data.from === 0) {
@@ -190,13 +190,19 @@
                     var sel = g.selectAll("path")
                         .data(data.features)
 
+
                     sel.enter()
                         .append("path")
+                        .merge(sel)
+
+                    sel.exit()
+                        .remove();
 
                     sel
                         .transition().duration(300)
                         .ease(d3.easeLinear)
                         .style("fill", color)
+                        // .attr("d", geoGenerator)
                         .attrTween("d", function () { return interpolator; })
                 };
 
